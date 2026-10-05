@@ -1081,8 +1081,8 @@ const DATA = {
       "active_kcal": 429,
       "total_kcal": 552,
       "avg_hr": 130,
-      "leaderboard_rank": 6407,
-      "leaderboard_total": 23185,
+      "leaderboard_rank": 6408,
+      "leaderboard_total": 23189,
       "peloton_workout_id": "f3516ecafce74dabb57862165466b189",
       "classes": [
         {
@@ -1121,8 +1121,8 @@ const DATA = {
       "active_kcal": 564,
       "total_kcal": 717,
       "avg_hr": 139,
-      "leaderboard_rank": 8582,
-      "leaderboard_total": 22423,
+      "leaderboard_rank": 8584,
+      "leaderboard_total": 22436,
       "peloton_workout_id": "92f0bc66a8fe4512bf73f3609a3b1c2c",
       "classes": [
         {
@@ -1177,8 +1177,8 @@ const DATA = {
       "active_kcal": 265,
       "total_kcal": 357,
       "avg_hr": 114,
-      "leaderboard_rank": 14688,
-      "leaderboard_total": 42477,
+      "leaderboard_rank": 14699,
+      "leaderboard_total": 42509,
       "peloton_workout_id": "cc2cfe09df124362921b45d293eb1700",
       "classes": [
         {
@@ -1281,8 +1281,8 @@ const DATA = {
       "active_kcal": 320,
       "total_kcal": 425,
       "avg_hr": 123,
-      "leaderboard_rank": 4437,
-      "leaderboard_total": 11853,
+      "leaderboard_rank": 4439,
+      "leaderboard_total": 11866,
       "peloton_workout_id": "912209f2e8fa4208b0d5e83f581d3c57",
       "classes": [
         {
@@ -1385,8 +1385,8 @@ const DATA = {
       "active_kcal": 358,
       "total_kcal": 464,
       "avg_hr": 126,
-      "leaderboard_rank": 15604,
-      "leaderboard_total": 36353,
+      "leaderboard_rank": 15613,
+      "leaderboard_total": 36365,
       "peloton_workout_id": "578be951a7a34302a936a24bc3e30eb5",
       "classes": [
         {
@@ -1425,8 +1425,8 @@ const DATA = {
       "active_kcal": 215,
       "total_kcal": 277,
       "avg_hr": 129,
-      "leaderboard_rank": 1173,
-      "leaderboard_total": 4235,
+      "leaderboard_rank": 1180,
+      "leaderboard_total": 4263,
       "peloton_workout_id": "646479925a2b4f51a2ea41df3787428a",
       "classes": [
         {
@@ -1462,8 +1462,8 @@ const DATA = {
       "active_kcal": 497,
       "total_kcal": 634,
       "avg_hr": 127,
-      "leaderboard_rank": 10181,
-      "leaderboard_total": 29956,
+      "leaderboard_rank": 10182,
+      "leaderboard_total": 29958,
       "peloton_workout_id": "9be9f4547ff54e97b6fe8f9039d419d4",
       "classes": [
         {
@@ -1491,8 +1491,8 @@ const DATA = {
 
   ]
 };
-const BUILT_AT = "2026-10-05T07:52:33-07:00";
-const DATA_FETCHED_AT = "2026-10-05T07:52:32-07:00";
+const BUILT_AT = "2026-10-05T08:11:02-07:00";
+const DATA_FETCHED_AT = "2026-10-05T08:11:02-07:00";
 
 // Rendered client-side so the stamp reads in the viewer's own timezone.
 function renderStamp(){
@@ -1826,7 +1826,7 @@ function render(){
   const totalKcal=ridden.reduce((s,r)=>s+(num(r.active_kcal)||0),0);
   const wattVals=ridden.map(r=>num(r.avg_watts)).filter(v=>v!==null);
 
-  const counts=r=>!!r&&(num(r.minutes)>=goal||!!r.active_day);
+  const counts=r=>!!r&&(num(r.minutes)>0||!!r.active_day);
   const activeDays=rides.filter(r=>r.active_day&&!(num(r.minutes)>0)).length;
   let streak=0,cursor=today;
   if(!counts(byDate[today])) cursor=addDays(today,-1);
