@@ -92,6 +92,7 @@
   .day .n{font-size:20px;font-weight:800;line-height:1.1;margin-top:2px}
   .day.hit{background:rgba(59,130,246,.92);border-color:rgba(96,165,250,.45);color:#fff}
   .day.short{background:rgba(251,191,36,.92);border-color:rgba(252,211,77,.45);color:#1c1917}
+  .day.active{background:rgba(20,184,166,.88);border-color:rgba(45,212,191,.45);color:#fff}
   .day.miss{background:rgba(255,255,255,.055);border-color:var(--line);color:var(--dim)}
   .bench{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
   .tile{overflow:hidden}
@@ -287,6 +288,7 @@
       <div class="legend">
         <span><span class="swatch" style="background:#3b82f6"></span>goal met</span>
         <span><span class="swatch" style="background:#fbbf24"></span>short ride</span>
+        <span><span class="swatch" style="background:#14b8a6"></span>active day, off the bike</span>
         <span><span class="swatch" style="background:rgba(255,255,255,.12)"></span>not logged</span>
         <span style="color:#94a3b8">click a day for its classes</span>
       </div>
@@ -1079,8 +1081,8 @@ const DATA = {
       "active_kcal": 429,
       "total_kcal": 552,
       "avg_hr": 130,
-      "leaderboard_rank": 6406,
-      "leaderboard_total": 23184,
+      "leaderboard_rank": 6407,
+      "leaderboard_total": 23185,
       "peloton_workout_id": "f3516ecafce74dabb57862165466b189",
       "classes": [
         {
@@ -1119,8 +1121,8 @@ const DATA = {
       "active_kcal": 564,
       "total_kcal": 717,
       "avg_hr": 139,
-      "leaderboard_rank": 8581,
-      "leaderboard_total": 22421,
+      "leaderboard_rank": 8582,
+      "leaderboard_total": 22423,
       "peloton_workout_id": "92f0bc66a8fe4512bf73f3609a3b1c2c",
       "classes": [
         {
@@ -1175,8 +1177,8 @@ const DATA = {
       "active_kcal": 265,
       "total_kcal": 357,
       "avg_hr": 114,
-      "leaderboard_rank": 14684,
-      "leaderboard_total": 42467,
+      "leaderboard_rank": 14688,
+      "leaderboard_total": 42477,
       "peloton_workout_id": "cc2cfe09df124362921b45d293eb1700",
       "classes": [
         {
@@ -1279,8 +1281,8 @@ const DATA = {
       "active_kcal": 320,
       "total_kcal": 425,
       "avg_hr": 123,
-      "leaderboard_rank": 4436,
-      "leaderboard_total": 11849,
+      "leaderboard_rank": 4437,
+      "leaderboard_total": 11853,
       "peloton_workout_id": "912209f2e8fa4208b0d5e83f581d3c57",
       "classes": [
         {
@@ -1383,8 +1385,8 @@ const DATA = {
       "active_kcal": 358,
       "total_kcal": 464,
       "avg_hr": 126,
-      "leaderboard_rank": 15600,
-      "leaderboard_total": 36343,
+      "leaderboard_rank": 15604,
+      "leaderboard_total": 36353,
       "peloton_workout_id": "578be951a7a34302a936a24bc3e30eb5",
       "classes": [
         {
@@ -1423,8 +1425,8 @@ const DATA = {
       "active_kcal": 215,
       "total_kcal": 277,
       "avg_hr": 129,
-      "leaderboard_rank": 1172,
-      "leaderboard_total": 4227,
+      "leaderboard_rank": 1173,
+      "leaderboard_total": 4235,
       "peloton_workout_id": "646479925a2b4f51a2ea41df3787428a",
       "classes": [
         {
@@ -1438,6 +1440,11 @@ const DATA = {
       ],
       "ride_minutes": 20,
       "ride_output_kj": 157
+    },
+    {
+      "date": "2026-10-04",
+      "minutes": 0,
+      "active_day": "Hike, about 2 hours"
     },
     {
       "date": "2026-10-05",
@@ -1484,8 +1491,8 @@ const DATA = {
 
   ]
 };
-const BUILT_AT = "2026-10-05T07:47:14-07:00";
-const DATA_FETCHED_AT = "2026-10-05T07:47:14-07:00";
+const BUILT_AT = "2026-10-05T07:52:33-07:00";
+const DATA_FETCHED_AT = "2026-10-05T07:52:32-07:00";
 
 // Rendered client-side so the stamp reads in the viewer's own timezone.
 function renderStamp(){
@@ -1659,6 +1666,8 @@ function toggleDayPop(chip, iso, dayNumber, ride){
         +'</div>'
         +'<div class="who">'+esc(c.instructor||"")+(bits.length?' \u00b7 '+bits.join(" \u00b7 "):'')+'</div></li>';
     }).join("")+'</ul>';
+  } else if(ride&&ride.active_day&&!(num(ride.minutes)>0)){
+    body+='<p class="none">No ride. Active day off the bike: '+esc(ride.active_day)+'. It keeps the streak alive.</p>';
   } else if(ride){
     body+='<ul><li><div class="what">'+esc(ride.ride_type||"Ride")+'</div>'
       +'<div class="who">'+esc(ride.instructor||"")+' \u00b7 '+(num(ride.minutes)||0)+' min</div></li></ul>';
@@ -1817,9 +1826,11 @@ function render(){
   const totalKcal=ridden.reduce((s,r)=>s+(num(r.active_kcal)||0),0);
   const wattVals=ridden.map(r=>num(r.avg_watts)).filter(v=>v!==null);
 
+  const counts=r=>!!r&&(num(r.minutes)>=goal||!!r.active_day);
+  const activeDays=rides.filter(r=>r.active_day&&!(num(r.minutes)>0)).length;
   let streak=0,cursor=today;
-  if(!(byDate[today]&&num(byDate[today].minutes)>=goal)) cursor=addDays(today,-1);
-  while(byDate[cursor]&&num(byDate[cursor].minutes)>=goal&&daysBetween(start,cursor)>=0){ streak++; cursor=addDays(cursor,-1); }
+  if(!counts(byDate[today])) cursor=addDays(today,-1);
+  while(counts(byDate[cursor])&&daysBetween(start,cursor)>=0){ streak++; cursor=addDays(cursor,-1); }
 
   const pct=Math.round(100*ridden.length/dayCount);
   const circ=2*Math.PI*76;
@@ -1831,7 +1842,7 @@ function render(){
     : "Today is still open. The bike is not going to ride itself.";
 
   document.getElementById("kpiDays").textContent=ridden.length+" / "+dayCount;
-  document.getElementById("kpiDaysSub").textContent=pct+"% of days since kickoff";
+  document.getElementById("kpiDaysSub").textContent=pct+"% of days since kickoff"+(activeDays?" \u00b7 plus "+activeDays+" active "+(activeDays===1?"day":"days")+" off the bike":"");
   document.getElementById("kpiMinutes").textContent=totalMin;
   document.getElementById("kpiMinutesSub").textContent=ridden.length?(Math.round(totalMin/ridden.length)+" min average"):"";
   document.getElementById("kpiOutput").textContent=totalKj?Math.round(totalKj):"\u2014";
@@ -1844,19 +1855,20 @@ function render(){
   const labels=[],values=[],colors=[],tips=[];
   for(let i=0;i<dayCount;i++){
     const iso=addDays(start,i), r=byDate[iso], mins=r?(num(r.minutes)||0):0;
-    const cls=mins>=goal?"hit":(mins>0?"short":"miss");
+    const act=!!(r&&r.active_day)&&mins<goal;
+    const cls=mins>=goal?"hit":(act?"active":(mins>0?"short":"miss"));
     const d=document.createElement("button");
     d.type="button";
     d.className="day "+cls;
     d.setAttribute("aria-expanded","false");
-    d.title=iso+(mins?" \u2014 "+mins+" min"+(r.ride_type?", "+r.ride_type:""):" \u2014 not logged")
+    d.title=iso+(act?" \u2014 "+r.active_day:(mins?" \u2014 "+mins+" min"+(r.ride_type?", "+r.ride_type:""):" \u2014 not logged"))
       +" \u2014 click for the day's classes";
     d.innerHTML='<div class="dow">'+new Date(iso+"T00:00:00").toLocaleDateString(undefined,{weekday:"short"})+'</div>'
-      +'<div class="n display">'+(mins||"\u2013")+'</div>';
+      +'<div class="n display">'+(act?"\u2713":(mins||"\u2013"))+'</div>';
     d.addEventListener("click",ev=>{ ev.stopPropagation(); toggleDayPop(d, iso, i+1, r); });
     cal.appendChild(d);
     labels.push(iso); values.push(mins);
-    colors.push(mins>=goal?"#3b82f6":(mins>0?"#fbbf24":"rgba(255,255,255,.10)"));
+    colors.push(mins>=goal?"#3b82f6":(act?"#14b8a6":(mins>0?"#fbbf24":"rgba(255,255,255,.10)")));
     tips.push("Day "+(i+1)+" \u00b7 "+iso+" \u2014 "+mins+" min"+(r&&r.ride_type?" \u2014 "+r.ride_type:""));
   }
   drawBars(document.getElementById("chartMinutes"),labels,values,colors,tips,goal);
