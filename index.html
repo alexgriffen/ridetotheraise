@@ -94,6 +94,7 @@
   .day.hit{background:rgba(59,130,246,.92);border-color:rgba(96,165,250,.45);color:#fff}
   .day.short{background:rgba(251,191,36,.92);border-color:rgba(252,211,77,.45);color:#1c1917}
   .day.active{background:rgba(20,184,166,.88);border-color:rgba(45,212,191,.45);color:#fff}
+  .day.memorial{background:#000;border-color:#3f3f46;color:#8a8a8f}
   .day.miss{background:rgba(255,255,255,.055);border-color:var(--line);color:var(--dim)}
   .bench{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
   .tile{overflow:hidden}
@@ -1787,7 +1788,8 @@ const DATA = {
       ],
       "ride_minutes": 30,
       "ride_output_kj": 306,
-      "note": "The day we lost Milo. A painful day."
+      "note": "The day we lost Milo. A painful day.",
+      "memorial": true
     },
     {
       "date": "2026-10-20",
@@ -2004,7 +2006,8 @@ const DATA = {
       ],
       "ride_minutes": 30,
       "ride_output_kj": 217,
-      "note": "The day we lost Katara. Another painful day. For a while after, I had no interest in riding."
+      "note": "The day we lost Katara. Another painful day. For a while after, I had no interest in riding.",
+      "memorial": true
     },
     {
       "date": "2026-11-07",
@@ -2115,8 +2118,8 @@ const DATA = {
 
   ]
 };
-const BUILT_AT = "2026-11-18T16:47:44-06:00";
-const DATA_FETCHED_AT = "2026-11-18T16:47:44-06:00";
+const BUILT_AT = "2026-11-18T16:48:17-06:00";
+const DATA_FETCHED_AT = "2026-11-18T16:48:17-06:00";
 
 // Rendered client-side so the stamp reads in the viewer's own timezone.
 function renderStamp(){
@@ -2480,7 +2483,7 @@ function render(){
   for(let i=0;i<dayCount;i++){
     const iso=addDays(start,i), r=byDate[iso], mins=r?(num(r.minutes)||0):0;
     const act=!!(r&&r.active_day)&&mins<goal;
-    const cls=mins>=goal?"hit":(act?"active":(mins>0?"short":"miss"));
+    const mem=!!(r&&r.memorial); const cls=mem?"memorial":(mins>=goal?"hit":(act?"active":(mins>0?"short":"miss")));
     const d=document.createElement("button");
     d.type="button";
     d.className="day "+cls;
@@ -2493,7 +2496,7 @@ function render(){
     d.addEventListener("click",ev=>{ ev.stopPropagation(); toggleDayPop(d, iso, i+1, r); });
     cal.appendChild(d);
     labels.push(iso); values.push(mins);
-    colors.push(mins>=goal?"#3b82f6":(act?"#14b8a6":(mins>0?"#fbbf24":"rgba(255,255,255,.10)")));
+    colors.push(mem?"#52525b":mins>=goal?"#3b82f6":(act?"#14b8a6":(mins>0?"#fbbf24":"rgba(255,255,255,.10)")));
     tips.push("Day "+(i+1)+" \u00b7 "+iso+" \u2014 "+mins+" min"+(r&&r.ride_type?" \u2014 "+r.ride_type:""));
   }
   drawBars(document.getElementById("chartMinutes"),labels,values,colors,tips,goal);
